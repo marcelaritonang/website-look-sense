@@ -1,19 +1,32 @@
-import axios from 'axios';
-
 const API_URL = 'http://localhost:5000/api';
 
-export const uploadImage = async (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
+export const predictImage = async (imageFile) => {
+    try {
+        const formData = new FormData();
+        formData.append('image', imageFile);
 
-  try {
-    const response = await axios.post(`${API_URL}/predict`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.error || 'Error uploading image');
-  }
+        const response = await fetch(`${API_URL}/predict`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Prediction failed');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error predicting image:', error);
+        throw error;
+    }
+};
+
+export const checkHealth = async () => {
+    try {
+        const response = await fetch(`${API_URL}/health`);
+        return await response.json();
+    } catch (error) {
+        console.error('Error checking health:', error);
+        throw error;
+    }
 };
